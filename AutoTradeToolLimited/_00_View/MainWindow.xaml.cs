@@ -5,7 +5,6 @@ using System.Windows;
 using AutoTradeTool._10_ViewModel.MainWindowVM;
 using AutoTradeTool._20_Model;
 using AutoTradeTool._20_Model.AutoRebalanceM.TopM;
-using AutoTradeTool._20_Model.OptionDistortionCancellerM;
 
 namespace AutoTradeTool._00_View
 {
