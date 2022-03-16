@@ -1,0 +1,124 @@
+﻿<UserControl x:Class="AutoTradeTool._00_View.AutoRebalance.OneSymbol"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:AutoTradeTool._00_View.AutoRebalance"
+             xmlns:vm="clr-namespace:AutoTradeTool._10_ViewModel.AutoRebalanceVM.SymbolVM"
+             xmlns:control="clr-namespace:AutoTradeTool._90_Library.Control"
+             mc:Ignorable="d"
+             IsEnabled="{Binding IsEditable}"
+             Background="{Binding BackgroundColor}"
+             d:DesignHeight="30"
+             d:DesignWidth="900">
+    <UserControl.DataContext>
+        <vm:AutoRebalanceSymbolVM/>
+    </UserControl.DataContext>
+    <UserControl.ContextMenu>
+        <ContextMenu>
+            <MenuItem
+                Header="上へ移動"
+                Command="{Binding UpButton}"
+                Visibility="{Binding UpButtonVisibility}"
+                />
+            <MenuItem
+                Header="下へ移動"
+                Command="{Binding DownButton}"
+                Visibility="{Binding DownButtonVisibility}"
+                />
+            <MenuItem
+                Header="削除"
+                Command="{Binding DelButton}"
+                />
+        </ContextMenu>
+    </UserControl.ContextMenu>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="40"/>
+            <ColumnDefinition Width="32"/>
+            <ColumnDefinition Width="150"/>
+            <ColumnDefinition Width="80"/>
+            <ColumnDefinition Width="100"/>
+            <ColumnDefinition Width="100"/>
+            <ColumnDefinition Width="110"/>
+            <ColumnDefinition Width="45"/>
+            <ColumnDefinition Width="32"/>
+            <ColumnDefinition Width="60"/>
+            <ColumnDefinition Width="32"/>
+            <ColumnDefinition Width="100"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <TextBlock
+            Grid.Column="0"
+            Text="Code:"
+            Margin="0, 5, 0, 5"
+            />
+        <control:NumericTextBox
+            Grid.Column="1"
+            Step="1"
+            Max="9999"
+            Min="1000"
+            IsReadOnly="{Binding IsSymbolReadOnly}"
+            Text="{Binding Symbol}"
+            Margin="0, 5, 0, 5"
+            />
+        <TextBlock
+            Grid.Column="2"
+            Text="{Binding SymbolName}"
+            Margin="0, 5, 0, 5"
+            />
+        <TextBlock
+            Grid.Column="3"
+            Text="{Binding Position}"
+            Margin="0, 5, 0, 5"
+            />
+        <TextBlock
+            Grid.Column="4"
+            Background="{Binding PriceColor}"
+            Text="{Binding CurrentPrice}"
+            Margin="0, 5, 0, 5"
+            />
+        <TextBlock
+            Grid.Column="5"
+            Text="{Binding CurrentMarketCapitalization}"
+            Margin="0, 5, 0, 5"
+            />
+        <TextBlock
+            Grid.Column="6"
+            Text="現割[%]／設定[%]："
+            Margin="0, 5, 0, 5"
+            />
+        <TextBlock
+            Grid.Column="7"
+            Text="{Binding CurrentPercent}"
+            Margin="0, 5, 0, 5"
+            TextAlignment="Right"
+            />
+        <control:NumericTextBox
+            Grid.Column="8"
+            Step="0.1"
+            Max="{Binding ExpectedMaxPercent}"
+            Min="0"
+            Text="{Binding ExpectedPercent}"
+            Margin="0, 5, 0, 5"
+            />
+        <TextBlock
+            Grid.Column="9"
+            Text="閾値[%]："
+            Margin="0, 5, 0, 5" TextAlignment="Right"
+            />
+        <control:NumericTextBox
+            Grid.Column="10"
+            Step="0.1"
+            Max="3"
+            Min="0"
+            Text="{Binding AutoRebalanceThresholdMinPercent}"
+            Margin="0, 5, 0, 5"
+            />
+        <TextBlock
+            Grid.Column="11"
+            Text="{Binding State}"
+            Margin="0, 5, 0, 5"
+            />
+    </Grid>
+</UserControl>

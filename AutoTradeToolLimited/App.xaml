@@ -1,0 +1,9 @@
+﻿<Application x:Class="AutoTradeTool.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:AutoTradeTool"
+             StartupUri="_00_View/MainWindow.xaml">
+    <Application.Resources>
+         
+    </Application.Resources>
+</Application>
