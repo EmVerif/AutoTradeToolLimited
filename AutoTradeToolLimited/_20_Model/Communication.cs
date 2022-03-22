@@ -248,9 +248,16 @@ namespace AutoTradeTool._20_Model
                     do
                     {
                         loopCnt++;
-                        if (loopCnt >= 100)
+                        if (loopCnt >= 10)
                         {
-                            throw new Exception("想定外エラー：注文のキャンセル出来ない。⇒" + cancelId);
+                            // １秒キャンセル出来なかったら、一旦アクセス頻度を落として様子見
+                            Task.Delay(900).Wait();
+                        }
+                        if (loopCnt >= (10 + 29))
+                        {
+                            // TODO: ３０秒経ってキャンセル出来なくても、中断せずに進めることとする。
+                            //throw new Exception("想定外エラー：注文のキャンセル出来ない。⇒" + cancelId);
+                            break;
                         }
                     }
                     while (!GetOrderIsFinished(cancelId));
@@ -344,9 +351,16 @@ namespace AutoTradeTool._20_Model
                     do
                     {
                         loopCnt++;
-                        if (loopCnt >= 100)
+                        if (loopCnt >= 10)
                         {
-                            throw new Exception("想定外エラー：注文のキャンセル出来ない。⇒" + cancelId);
+                            // １秒キャンセル出来なかったら、一旦アクセス頻度を落として様子見
+                            Task.Delay(900).Wait();
+                        }
+                        if (loopCnt >= (10 + 29))
+                        {
+                            // TODO: ３０秒経ってキャンセル出来なくても、中断せずに進めることとする。
+                            //throw new Exception("想定外エラー：注文のキャンセル出来ない。⇒" + cancelId);
+                            break;
                         }
                     }
                     while (!GetOrderIsFinished(cancelId));
@@ -970,6 +984,10 @@ namespace AutoTradeTool._20_Model
                     (currentPriceChangeStatus != "0058") &&
                     (currentPriceChangeStatus != "0059")
                 )
+                {
+                    tradeEnableFlag = false;
+                }
+                if (outBoardInfo.SellPrice == outBoardInfo.BuyPrice)
                 {
                     tradeEnableFlag = false;
                 }

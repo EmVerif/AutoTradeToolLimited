@@ -261,7 +261,11 @@ namespace AutoTradeTool._20_Model.AutoRebalanceM.SymbolM
             }
             set
             {
-                if (GetAdjustNum() != 0)
+                if (PrevTrade == TradeType.Init)
+                {
+                    _AdjustFlag = false;
+                }
+                else if (GetAdjustNum() != 0)
                 {
                     _AdjustFlag = value;
                 }
@@ -556,7 +560,7 @@ namespace AutoTradeTool._20_Model.AutoRebalanceM.SymbolM
                     return;
                 }
                 Communication.Buy(Symbol, _BoardInfo.SellPrice.Value, tradeNum * TradingUnit, out contractNum, out prevCash, out postCash);
-                if (PrevTrade == TradeType.Init)
+                if ((PrevTrade == TradeType.Init) || (PrevTrade == TradeType.InitBuying))
                 {
                     PrevTrade = TradeType.InitBuying;
                 }
@@ -577,7 +581,7 @@ namespace AutoTradeTool._20_Model.AutoRebalanceM.SymbolM
                 }
                 CheckSell(tradeNum);
                 Communication.Sell(Symbol, _BoardInfo.BuyPrice.Value, tradeNum * TradingUnit, out contractNum, out prevCash, out postCash);
-                if (PrevTrade == TradeType.Init)
+                if ((PrevTrade == TradeType.Init) || (PrevTrade == TradeType.InitSelling))
                 {
                     PrevTrade = TradeType.InitSelling;
                 }
