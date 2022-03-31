@@ -275,11 +275,10 @@ namespace AutoTradeTool._20_Model
                 {
                     // トレード成立した場合は、現金値が変化するまでポーリングする。
                     Decimal diffCash = outPrevCash - outPostCash;
-                    Decimal diffCashMax = outBuyNum * inPrice * 1.01M;
-                    Decimal diffCashMin = outBuyNum * inPrice * 0.9M;
+                    Decimal diffCashMin = outBuyNum * inPrice;
                     Int32 loopCnt = 0;
 
-                    while ((diffCash > diffCashMax) || (diffCash < diffCashMin))
+                    while (diffCash < diffCashMin)
                     {
                         loopCnt++;
                         if (loopCnt >= 100)

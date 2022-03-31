@@ -11,12 +11,16 @@ namespace AutoTradeTool._90_Library
         public static double CalcMovingAverage(IReadOnlyList<double> inDataList)
         {
             double ret = 0;
+            Int32 count = inDataList.Count;
 
-            foreach (var data in inDataList)
+            if (count > 0)
             {
-                ret += data;
+                foreach (var data in inDataList)
+                {
+                    ret += data;
+                }
+                ret /= count;
             }
-            ret /= inDataList.Count;
 
             return ret;
         }
@@ -28,12 +32,19 @@ namespace AutoTradeTool._90_Library
             double squareSum = 0;
             Int32 count = inDataList.Count;
 
-            foreach (var data in inDataList)
+            if (count > 1)
             {
-                sum += data;
-                squareSum += data * data;
+                foreach (var data in inDataList)
+                {
+                    sum += data;
+                    squareSum += data * data;
+                }
+                sigma = Math.Sqrt(((count * squareSum) - (sum * sum)) / (count * (count - 1)));
             }
-            sigma = Math.Sqrt(((count * squareSum) - (sum * sum)) / (count * (count - 1)));
+            else
+            {
+                sigma = 0;
+            }
 
             return sigma;
         }
