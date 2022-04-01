@@ -154,6 +154,23 @@ namespace AutoTradeTool._20_Model.AutoRebalanceM.TopM
                 xs.Serialize(sw, modelBackup);
                 sw.Flush();
             }
+            using (StreamWriter sw = new StreamWriter(
+                Parameter.AutoRebalanceDirectory +
+                @"Data_" +
+                DateTime.Today.Year +
+                DateTime.Today.Month.ToString("D2") +
+                DateTime.Today.Day.ToString("D2") +
+                @".xml",
+                false, new UTF8Encoding(false)))
+            {
+                ModelBackup modelBackup = new ModelBackup()
+                {
+                    CurrentCash = _CurrentCash,
+                    Database = Database
+                };
+                xs.Serialize(sw, modelBackup);
+                sw.Flush();
+            }
             using (StreamWriter sw = new StreamWriter(Parameter.AutoRebalanceTradeLog, true, new UTF8Encoding(false)))
             {
                 sw.Write(_TradeLog);

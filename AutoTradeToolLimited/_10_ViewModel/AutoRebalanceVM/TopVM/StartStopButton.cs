@@ -17,13 +17,16 @@ namespace AutoTradeTool._10_ViewModel.AutoRebalanceVM.TopVM
 
         public string ButtonName { get; private set; } = "トレード開始";
 
+        private Boolean _IsBusy = false;
+
         public bool CanExecute(object parameter)
         {
-            return true;
+            return !_IsBusy;
         }
 
         public void Execute(object parameter)
         {
+            _IsBusy = true;
             CanExecuteChanged?.Invoke(this, new EventArgs());
             try
             {
@@ -40,6 +43,8 @@ namespace AutoTradeTool._10_ViewModel.AutoRebalanceVM.TopVM
             {
                 MessageBox.Show(ex.Message);
             }
+            _IsBusy = false;
+            CanExecuteChanged?.Invoke(this, new EventArgs());
         }
 
         private void Stop()
