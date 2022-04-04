@@ -643,10 +643,14 @@ namespace AutoTradeTool._20_Model.AutoRebalanceM.SymbolM
 
         private Boolean CheckBuyEnable(decimal tradeNum)
         {
-            Decimal mergin = 1.01M;// TODO: 手数料１％と仮定。
+            Decimal merginRatio = 1.01M;// TODO: ワンショット手数料１％と仮定。
+            Decimal merginConst = 3000;// TODO: 定額手数料３０００円と仮定。
             Boolean ret;
 
-            if (AutoRebalanceTopM.Instance.CurrentCash < (tradeNum * TradingUnit * _BoardInfo.SellPrice * mergin))
+            if (
+                (AutoRebalanceTopM.Instance.CurrentCash < (tradeNum * TradingUnit * _BoardInfo.SellPrice * merginRatio)) ||
+                (AutoRebalanceTopM.Instance.CurrentCash < (tradeNum * TradingUnit * _BoardInfo.SellPrice + merginConst))
+            )
             {
                 ret = false;
             }
