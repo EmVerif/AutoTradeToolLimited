@@ -266,19 +266,19 @@ namespace AutoTradeTool._20_Model
                 // キャッシュの変化チェック
                 outPostCash = GetCash();
                 Boolean finFlag;
+                Decimal buyCash;
                 do
                 {
-                    outBuyNum = GetContractNum(orderId, out finFlag);
+                    GetContractInfo(orderId, out finFlag, out outBuyNum, out buyCash);
                 }
                 while (!finFlag);
                 if (outBuyNum != 0)
                 {
                     // トレード成立した場合は、現金値が変化するまでポーリングする。
                     Decimal diffCash = outPrevCash - outPostCash;
-                    Decimal diffCashMin = outBuyNum * inPrice;
                     Int32 loopCnt = 0;
 
-                    while (diffCash < diffCashMin)
+                    while (diffCash < buyCash)
                     {
                         loopCnt++;
                         if (loopCnt >= 100)
@@ -384,9 +384,10 @@ namespace AutoTradeTool._20_Model
                 // キャッシュの変化チェック
                 outPostCash = GetCash();
                 Boolean finFlag;
+                Decimal salesCash;
                 do
                 {
-                    outSellNum = GetContractNum(orderId, out finFlag);
+                     GetContractInfo(orderId, out finFlag, out outSellNum, out salesCash);
                 }
                 while (!finFlag);
                 if (outSellNum != 0)
@@ -561,11 +562,10 @@ namespace AutoTradeTool._20_Model
             return ret;
         }
 
-        public static Decimal GetContractNum(string inOrderId, out Boolean outFinFlag)
+        public static void GetContractInfo(string inOrderId, out Boolean outFinFlag, out Decimal outTradeNum, out Decimal outTradeCash)
         {
             var builder = new UriBuilder(Parameter.BaseHttpUrl + "orders");
             var param = HttpUtility.ParseQueryString(builder.Query);
-            Decimal ret;
 
             param["id"] = inOrderId;
             builder.Query = param.ToString();
@@ -580,12 +580,18 @@ namespace AutoTradeTool._20_Model
                 HttpResponseMessage response = _Client.SendAsync(request).Result;
                 Task.Delay(100).Wait();
                 infos = JsonConvert.DeserializeObject<JArray>(response.Content.ReadAsStringAsync().Result);
-                OutputLog(nameof(GetContractNum) + "\n" + infos.ToString() + "\n");
+                OutputLog(nameof(GetContractInfo) + "\n" + infos.ToString() + "\n");
             }
-            ret = Convert.ToDecimal((string)infos[0]["CumQty"]);
+            outTradeNum = Convert.ToDecimal((string)infos[0]["CumQty"]);
+            outTradeCash = 0;
+            foreach (var detail in (JArray)infos[0]["Details"])
+            {
+                if ((string)detail["RecType"] == "8")
+                {
+                    outTradeCash += (Convert.ToDecimal(detail["Price"]) * Convert.ToDecimal(detail["Qty"]));
+                }
+            }
             outFinFlag = ((string)infos[0]["OrderState"] == "5");
-
-            return ret;
         }
 
         public static void UnregisterAll()
@@ -964,14 +970,16 @@ namespace AutoTradeTool._20_Model
                 string currentPriceChangeStatus = (string)infos["CurrentPriceChangeStatus"];
                 if (
                     (bidSign != "0000") &&
-                    (bidSign != "0101")
+                    (bidSign != "0101") &&
+                    (bidSign != "0107")
                 )
                 {
                     tradeEnableFlag = false;
                 }
                 if (
                     (askSign != "0000") &&
-                    (askSign != "0101")
+                    (askSign != "0101") &&
+                    (askSign != "0107")
                 )
                 {
                     tradeEnableFlag = false;
