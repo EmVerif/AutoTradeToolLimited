@@ -289,6 +289,21 @@ namespace AutoTradeTool._20_Model
                         diffCash = outPrevCash - outPostCash;
                     }
                 }
+                else
+                {
+                    // トレード非成立の場合は、現金値ロック解除までポーリングする。
+                    Int32 loopCnt = 0;
+
+                    while (outPrevCash != outPostCash)
+                    {
+                        loopCnt++;
+                        if (loopCnt >= 100)
+                        {
+                            throw new Exception("想定外エラー：購入していないのに、現金の変化があった。");
+                        }
+                        outPostCash = GetCash();
+                    }
+                }
             }
         }
 
@@ -395,7 +410,7 @@ namespace AutoTradeTool._20_Model
                     // トレード成立した場合は、現金値が変化するまでポーリングする。
                     Int32 loopCnt = 0;
 
-                    while (outPostCash == outPrevCash)
+                    while (outPostCash <= outPrevCash)
                     {
                         loopCnt++;
                         if (loopCnt >= 100)
@@ -945,7 +960,7 @@ namespace AutoTradeTool._20_Model
 
         private static void AnalyzeBoardInfoJson(string inJsonText, out string outSymbol, out BoardInfo outBoardInfo, Boolean isLogOut = false)
         {
-            Boolean tradeEnableFlag = true;
+            Boolean tradeEnableFlag = CheckTradeTime();
             outBoardInfo = new BoardInfo();
             JObject infos = JsonConvert.DeserializeObject<JObject>(inJsonText);
             if (isLogOut)
@@ -1004,6 +1019,26 @@ namespace AutoTradeTool._20_Model
             {
                 outBoardInfo = null;
             }
+        }
+
+        private static Boolean CheckTradeTime()
+        {
+            var time = DateTime.Now;
+            var timeInt = time.Hour * 10000 + time.Minute * 100 + time.Second;
+            Boolean ret = false;
+
+            // ９時前の寄り板と、９時以降の全くトレードが発生していない板の区別が、kabuステーションとの通信で分からないため、時刻で判定する。
+            // 念のため、開始時刻は３０秒のマージンを取る。
+            if ((90030 <= timeInt)  && (timeInt < 113000))
+            {
+                ret = true;
+            }
+            if ((123030 <= timeInt) && (timeInt < 150000))
+            {
+                ret = true;
+            }
+
+            return ret;
         }
     }
 }
