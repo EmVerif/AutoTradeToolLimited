@@ -145,6 +145,10 @@ namespace AutoTradeTool._20_Model
                 if (_BoardInfoFromWebSocket.ContainsKey(inSymbol))
                 {
                     ret = _BoardInfoFromWebSocket[inSymbol];
+                    if (!CheckTradeTime())
+                    {
+                        ret.TradeEnableFlag = false;
+                    }
                 }
             }
             if (!GetWebSocketRunning() || (ret == null))
@@ -1029,7 +1033,7 @@ namespace AutoTradeTool._20_Model
 
             // ９時前の寄り板と、９時以降の全くトレードが発生していない板の区別が、kabuステーションとの通信で分からないため、時刻で判定する。
             // 念のため、開始時刻は３０秒のマージンを取る。
-            if ((90030 <= timeInt)  && (timeInt < 113000))
+            if ((90030 <= timeInt) && (timeInt < 113000))
             {
                 ret = true;
             }
