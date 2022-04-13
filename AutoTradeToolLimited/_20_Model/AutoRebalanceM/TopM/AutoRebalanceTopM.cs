@@ -19,6 +19,8 @@ namespace AutoTradeTool._20_Model.AutoRebalanceM.TopM
 
     class AutoRebalanceTopM : INotifyPropertyChanged
     {
+        public const double MaxTotalExpectedRatio = 1.00;
+
         public static AutoRebalanceTopM Instance = new AutoRebalanceTopM();
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -322,8 +324,6 @@ namespace AutoTradeTool._20_Model.AutoRebalanceM.TopM
 
         public void PutOrPullCash(Decimal inCash)
         {
-            var prevCash = _CurrentCash;
-
             _CurrentCash = inCash;
             foreach (var data in Database)
             {

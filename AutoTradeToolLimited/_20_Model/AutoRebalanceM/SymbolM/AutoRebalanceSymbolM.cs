@@ -20,8 +20,9 @@ namespace AutoTradeTool._20_Model.AutoRebalanceM.SymbolM
 
     public class AutoRebalanceSymbolM : INotifyPropertyChanged
     {
+        private const double _ExpectedRatioMin = 0.0001;
+
         public event PropertyChangedEventHandler PropertyChanged;
-        private const double _MaxTotalExpectedRatio = 1.00;
 
         // リバランス閾値
         private double _AutoRebalanceThreshold = 0.02;
@@ -70,12 +71,12 @@ namespace AutoTradeTool._20_Model.AutoRebalanceM.SymbolM
         {
             get
             {
-                var ret = _MaxTotalExpectedRatio - AutoRebalanceTopM.Instance.TotalExpectedRatio + ExpectedRatio;
+                var ret = AutoRebalanceTopM.MaxTotalExpectedRatio - AutoRebalanceTopM.Instance.TotalExpectedRatio + ExpectedRatio;
                 return ret;
             }
         }
 
-        private double _ExpectedRatio = 0.0;
+        private double _ExpectedRatio = _ExpectedRatioMin;
         public double ExpectedRatioForXml
         {
             get
@@ -85,6 +86,7 @@ namespace AutoTradeTool._20_Model.AutoRebalanceM.SymbolM
             set
             {
                 _ExpectedRatio = value;
+                OnPropertyChanged(nameof(ExpectedRatio));
             }
         }
         [XmlIgnore]
@@ -100,7 +102,7 @@ namespace AutoTradeTool._20_Model.AutoRebalanceM.SymbolM
 
                 if ((Position != 0) && (value == 0.0))
                 {
-                    _ExpectedRatio = 0.001;
+                    _ExpectedRatio = _ExpectedRatioMin;
                 }
                 else
                 {
@@ -687,10 +689,10 @@ namespace AutoTradeTool._20_Model.AutoRebalanceM.SymbolM
         {
             var total = (double)AutoRebalanceTopM.Instance.CurrentTotalMarketCapitalization;
             var expectedPosition = total * ExpectedRatio / (double)CurrentPrice;
-            if (expectedPosition == 0)
+            if (ExpectedRatio <= _ExpectedRatioMin)
             {
                 // ０％は全売り
-                return (Position / TradingUnit);
+                return -(Position / TradingUnit);
             }
             var diffRatio = Math.Abs((ExpectedRatio - CurrentRatio) / ExpectedRatio);
             double reboundRatio;
