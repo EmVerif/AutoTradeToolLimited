@@ -271,9 +271,10 @@ namespace AutoTradeTool._20_Model
                 outPostCash = GetCash();
                 Boolean finFlag;
                 Decimal buyCash;
+                Decimal commission;
                 do
                 {
-                    GetContractInfo(orderId, out finFlag, out outBuyNum, out buyCash);
+                    GetContractInfo(orderId, out finFlag, out outBuyNum, out buyCash, out commission);
                 }
                 while (!finFlag);
                 if (outBuyNum != 0)
@@ -282,11 +283,17 @@ namespace AutoTradeTool._20_Model
                     Decimal diffCash = outPrevCash - outPostCash;
                     Int32 loopCnt = 0;
 
-                    while (diffCash < buyCash)
+                    while (diffCash != (buyCash + commission))
                     {
                         loopCnt++;
-                        if (loopCnt >= 100)
+                        if (loopCnt >= 10)
                         {
+                            // １秒キャンセル出来なかったら、一旦アクセス頻度を落として様子見
+                            Task.Delay(900).Wait();
+                        }
+                        if (loopCnt >= (10 + 29))
+                        {
+                            // ３０秒待機
                             throw new Exception("想定外エラー：購入後の現金取得失敗。");
                         }
                         outPostCash = GetCash();
@@ -404,9 +411,10 @@ namespace AutoTradeTool._20_Model
                 outPostCash = GetCash();
                 Boolean finFlag;
                 Decimal salesCash;
+                Decimal commission;
                 do
                 {
-                     GetContractInfo(orderId, out finFlag, out outSellNum, out salesCash);
+                     GetContractInfo(orderId, out finFlag, out outSellNum, out salesCash, out commission);
                 }
                 while (!finFlag);
                 if (outSellNum != 0)
@@ -417,8 +425,14 @@ namespace AutoTradeTool._20_Model
                     while (outPostCash <= outPrevCash)
                     {
                         loopCnt++;
-                        if (loopCnt >= 100)
+                        if (loopCnt >= 10)
                         {
+                            // １秒キャンセル出来なかったら、一旦アクセス頻度を落として様子見
+                            Task.Delay(900).Wait();
+                        }
+                        if (loopCnt >= (10 + 29))
+                        {
+                            // ３０秒待機
                             throw new Exception("想定外エラー：売却後の現金取得失敗。");
                         }
                         outPostCash = GetCash();
@@ -581,7 +595,7 @@ namespace AutoTradeTool._20_Model
             return ret;
         }
 
-        public static void GetContractInfo(string inOrderId, out Boolean outFinFlag, out Decimal outTradeNum, out Decimal outTradeCash)
+        public static void GetContractInfo(string inOrderId, out Boolean outFinFlag, out Decimal outTradeNum, out Decimal outTradeCash, out Decimal outCommission)
         {
             var builder = new UriBuilder(Parameter.BaseHttpUrl + "orders");
             var param = HttpUtility.ParseQueryString(builder.Query);
@@ -603,11 +617,13 @@ namespace AutoTradeTool._20_Model
             }
             outTradeNum = Convert.ToDecimal((string)infos[0]["CumQty"]);
             outTradeCash = 0;
+            outCommission = 0;
             foreach (var detail in (JArray)infos[0]["Details"])
             {
                 if ((string)detail["RecType"] == "8")
                 {
                     outTradeCash += (Convert.ToDecimal(detail["Price"]) * Convert.ToDecimal(detail["Qty"]));
+                    outCommission += (Convert.ToDecimal(detail["Commission"]) + Convert.ToDecimal(detail["CommissionTax"]));
                 }
             }
             outFinFlag = ((string)infos[0]["OrderState"] == "5");
